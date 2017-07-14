@@ -103,7 +103,6 @@ class DbChangeSetService {
                 MigrationScript ret = changeSet.invoke(changeLogInstance, adapter.db())
                 ret.update()
                 Long end = new Date().getTime()
-                println("Ran ${resourceName} successfully. [${end - start} milli seconds]")
                 loggerService.logMessage("Ran ${resourceName} successfully. [${end - start} milli seconds]")
                 insert(changeSet, changeLogInstance, action)
             } catch (Exception e) {
@@ -112,7 +111,6 @@ class DbChangeSetService {
             }
         } else {
             loggerService.logMessage("Skipping ${resourceName} since it has already been run.")
-            println("Skipping ${resourceName} since it has already been run.")
         }
     }
 }
