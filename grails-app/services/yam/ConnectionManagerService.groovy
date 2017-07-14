@@ -62,12 +62,11 @@ class ConnectionManagerService {
      * @param uri database connection uri
      * @return DbmsAdapter class
      * */
-    DbmsAdapter getAdapterClass(String uri) {
+    Class<DbmsAdapter> getAdapterClass(String uri) {
         String srcPackage = "yam.adapters"
         Reflections reflections = new Reflections(srcPackage)
-        Set<DbmsAdapter> adapters = (reflections.getSubTypesOf(DbmsAdapter.class))
-
-        DbmsAdapter matchedAdapter = adapters.find({
+        Set<Class<DbmsAdapter>> adapters = (reflections.getSubTypesOf(DbmsAdapter.class))
+        Class<DbmsAdapter> matchedAdapter = adapters.find({
             return uri.matches(it.uriMatcher())
         })
         return matchedAdapter
@@ -80,7 +79,7 @@ class ConnectionManagerService {
         }
 
         String uri = System.getProperty(connectionName + "_uri")
-        Class<?> clazz = getAdapterClass(uri)
+        Class<DbmsAdapter> clazz = getAdapterClass(uri)
         adapter = clazz.newInstance(connectionURI: uri)
         adapters.put(connectionName, adapter)
         return adapter

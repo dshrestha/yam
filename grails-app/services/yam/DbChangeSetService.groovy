@@ -98,13 +98,12 @@ class DbChangeSetService {
         DbmsAdapter adapter = getAdapter(annotation)
         if (annotation.runAlways() || !changeSetExists(changeSet, changeLogInstance, action)) {
             try {
-                MigrationScript ret = changeSet.invoke(changeLogInstance)
-                ret.db = adapter.db()
-                ret.connectionManagerService = connectionManagerService
+                Long start = new Date().getTime()
+                MigrationScript ret = changeSet.invoke(changeLogInstance, adapter.db())
                 ret.update()
-
+                Long end = new Date().getTime()
+                loggerService.logMessage("Ran ${resourceName} successfully. [${end - start} milli seconds]")
                 insert(changeSet, changeLogInstance, action)
-                loggerService.logMessage("Ran ${resourceName} successfully.")
             } catch (Exception e) {
                 loggerService.logMessage("Found exception when running ${resourceName}. ${e.message}")
                 throw e

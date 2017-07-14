@@ -4,6 +4,8 @@ import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoDatabase
+import com.mongodb.client.model.Indexes
+import org.bson.Document
 import org.bson.types.ObjectId
 import java.util.regex.Pattern
 
@@ -29,8 +31,8 @@ class MongoAdapter implements DbmsAdapter {
         MongoDatabase db = getDefaultDatabase()
         List collectionNames = db.listCollectionNames().toList()
         if (!collectionNames.contains("changeSet")) {
-            db.createCollection("changeSet", new BasicDBObject())
-            db.getCollection('changeSet').createIndex(["resource": 1, "version": 1, "action": 1])
+            db.createCollection("changeSet")
+            db.getCollection('changeSet').createIndex(Indexes.ascending("resource", "version", "action"))
         }
     }
 
@@ -43,7 +45,7 @@ class MongoAdapter implements DbmsAdapter {
     Long getMaxRunGroup() {
         Long maxRunGroup = 0
         MongoDatabase db = getDefaultDatabase()
-        db.getCollection("changeSet").find().sort(["runGroup": +1]).limit(1).each({
+        db.getCollection("changeSet").find().sort(new BasicDBObject(["runGroup": -1])).limit(1).each({
             maxRunGroup = it.runGroup ?: 0
         })
         return maxRunGroup
@@ -77,14 +79,14 @@ class MongoAdapter implements DbmsAdapter {
                 queryFilter[filterKeys[key]['key']] = filterKeys[key]['process'](value)
             }
         }
-        return db.getCollection("changeSet").find(queryFilter).collect {
+        return db.getCollection("changeSet").find(new BasicDBObject(queryFilter)).collect {
             return it
         }
     }
 
     Map insertChangeSet(Map changeSet) {
         MongoDatabase db = getDefaultDatabase()
-        db.getCollection("changeSet").insertOne(changeSet)
+        db.getCollection("changeSet").insertOne(new Document(changeSet))
         return changeSet
     }
 }

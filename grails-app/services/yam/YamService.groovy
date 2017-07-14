@@ -11,8 +11,8 @@ class YamService {
     def connectionManagerService
     def dbChangeSetService
 
-    def connectionsUsedInMigration() {
-        Set usedConnections
+    Set<String> connectionsUsedInMigration() {
+        Set<String> usedConnections = []
         dbChangeLogService.getChangeLogs().each { Class changeLog ->
             dbChangeSetService.getChangeSets(changeLog).each { Method changeSet ->
                 ChangeSet annotation = changeSet.getAnnotation(ChangeSet.class)

@@ -8,9 +8,14 @@ import java.lang.reflect.Method
 class DbChangeLogService {
 
     def dbChangeSetService
+    def loggerService
+    def connectionManagerService
 
     DbChangeLog instantiateChangeLog(Class<DbChangeLog> changeLog) {
-        return changeLog.newInstance()
+        return changeLog.newInstance(
+                connectionManagerService: connectionManagerService,
+                loggerService: loggerService
+        )
     }
 
     /**

@@ -9,9 +9,9 @@ import java.lang.annotation.Target
 @Target([ElementType.METHOD])
 @interface ChangeSet {
 
-    int sequence()
+    int sequence() default 1
 
-    String version()
+    String version() default "1.0"
 
     String author()
 
