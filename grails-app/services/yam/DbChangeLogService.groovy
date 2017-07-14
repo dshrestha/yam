@@ -4,6 +4,7 @@ import org.reflections.Reflections
 import yam.annotations.ChangeLog
 import yam.changeLogs.DbChangeLog
 import java.lang.reflect.Method
+import static grails.async.Promises.*
 
 class DbChangeLogService {
 
@@ -33,10 +34,12 @@ class DbChangeLogService {
     }
 
     def update() {
-        getChangeLogs().each { Class changeLog ->
-            DbChangeLog changeLogInstance = instantiateChangeLog(changeLog)
-            dbChangeSetService.getChangeSets(changeLog).each { Method changeSet ->
-                dbChangeSetService.update(changeSet, changeLogInstance)
+        task {
+            getChangeLogs().each { Class changeLog ->
+                DbChangeLog changeLogInstance = instantiateChangeLog(changeLog)
+                dbChangeSetService.getChangeSets(changeLog).each { Method changeSet ->
+                    dbChangeSetService.update(changeSet, changeLogInstance)
+                }
             }
         }
     }

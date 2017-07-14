@@ -96,12 +96,14 @@ class DbChangeSetService {
         String resourceName = getResourceName(changeSet, changeLogInstance, false)
         ChangeSet annotation = changeSet.getAnnotation(ChangeSet.class)
         DbmsAdapter adapter = getAdapter(annotation)
+
         if (annotation.runAlways() || !changeSetExists(changeSet, changeLogInstance, action)) {
             try {
                 Long start = new Date().getTime()
                 MigrationScript ret = changeSet.invoke(changeLogInstance, adapter.db())
                 ret.update()
                 Long end = new Date().getTime()
+                println("Ran ${resourceName} successfully. [${end - start} milli seconds]")
                 loggerService.logMessage("Ran ${resourceName} successfully. [${end - start} milli seconds]")
                 insert(changeSet, changeLogInstance, action)
             } catch (Exception e) {
@@ -110,6 +112,7 @@ class DbChangeSetService {
             }
         } else {
             loggerService.logMessage("Skipping ${resourceName} since it has already been run.")
+            println("Skipping ${resourceName} since it has already been run.")
         }
     }
 }

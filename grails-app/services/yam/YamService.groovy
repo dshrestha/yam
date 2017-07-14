@@ -1,9 +1,7 @@
 package yam
 
 import yam.annotations.ChangeSet
-
 import java.lang.reflect.Method
-
 
 class YamService {
 

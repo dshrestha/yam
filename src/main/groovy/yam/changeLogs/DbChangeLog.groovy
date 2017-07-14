@@ -3,7 +3,7 @@ package yam.changeLogs
 import yam.ConnectionManagerService
 import yam.LoggerService
 
-class DbChangeLog {
+trait DbChangeLog {
 
     ConnectionManagerService connectionManagerService
     LoggerService loggerService
