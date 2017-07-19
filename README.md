@@ -21,7 +21,7 @@ grails run-command rollback -Dversion="1.0" -DchangeLogClass="migration.script.a
 ```
 
 ### command arguments/connection parameters
-1) You can pass any arguments you would want/need but the adatpers will automatically establish connection if you provide arguments in following convention ***[connection_name]_uri="[connection_uri]"***
+1) You can pass any arguments you would want/need but the adatpers will automatically establish connection if you provide arguments in following convention ***[changeSetConnectionName]_uri="[connection_uri]"***
 2) If you want to run migration script from a specific change log then you can do so by providing ***srcPackage*** as an command argument which is just the package name under which the your changeLog class resides.
 
 # Writing migration scripts
@@ -74,3 +74,13 @@ If the dmbs that you are trying to use is not currently supported, then it is ea
 * ***closeConnection*** :  close the connection
 * ***changeSetExists*** :  given resource name, version and action this method should return true if the changeSet exists
 * ***insertChangeSet*** : inserts a changeset records in the db
+
+# Parallelization
+You can also run the migration scritps in parallel but in order to take advantage of it, you need to organize your changelogs in separate packages. For eg, lets assume we have packages specific to the databse : `yam.changeLogs.myMongoDB, yam.changeLogs.mySqlDB, yam.changeLogs.myAnotherMongoDB`. In such a case you can run all the changelogs in those packages in parallel as follows
+
+```bash
+grails run-command run -DrunParallel=true -DsrcPackages="yam.changeLogs.myMongoDB, yam.changeLogs.mySqlDB, yam.changeLogs.myAnotherMongoDB" [connection uris]
+ 
+```
+
+Just make sure that the migration scripts are not inter-dependent when running them in parallel.

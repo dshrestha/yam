@@ -4,7 +4,6 @@ import org.reflections.Reflections
 import yam.annotations.ChangeLog
 import yam.changeLogs.DbChangeLog
 import java.lang.reflect.Method
-import static grails.async.Promises.*
 
 class DbChangeLogService {
 
@@ -24,7 +23,7 @@ class DbChangeLogService {
      *
      * @return set of classes
      * */
-    Set<Class<?>> getChangeLogs(String srcPackage = "yam.changeLogs") {
+    Set<Class<?>> getChangeLogs(String srcPackage) {
         Reflections reflections = new Reflections(srcPackage)
         Set<Class<?>> changeLogs = (reflections.getTypesAnnotatedWith(ChangeLog.class)).sort {
             ChangeLog changeLog = it.getAnnotation(ChangeLog.class)
@@ -33,13 +32,20 @@ class DbChangeLogService {
         return changeLogs
     }
 
-    def update() {
-        task {
-            getChangeLogs().each { Class changeLog ->
-                DbChangeLog changeLogInstance = instantiateChangeLog(changeLog)
-                dbChangeSetService.getChangeSets(changeLog).each { Method changeSet ->
-                    dbChangeSetService.update(changeSet, changeLogInstance)
-                }
+    def update(String srcPackage) {
+        getChangeLogs(srcPackage).each { Class changeLog ->
+            DbChangeLog changeLogInstance = instantiateChangeLog(changeLog)
+            dbChangeSetService.getChangeSets(changeLog).each { Method changeSet ->
+                dbChangeSetService.update(changeSet, changeLogInstance)
+            }
+        }
+    }
+
+    def rollback(String srcPackage, Long toRunGroup) {
+        getChangeLogs(srcPackage).each { Class changeLog ->
+            DbChangeLog changeLogInstance = instantiateChangeLog(changeLog)
+            dbChangeSetService.getChangeSets(changeLog).each { Method changeSet ->
+                dbChangeSetService.rollback(changeSet, changeLogInstance, toRunGroup)
             }
         }
     }

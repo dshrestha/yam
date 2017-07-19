@@ -68,11 +68,15 @@ class MongoAdapter implements DbmsAdapter {
         MongoDatabase db = getDefaultDatabase()
         def queryFilter = [:]
         def filterKeys = [
-                "id"      : ['key': '_id', 'process': { value -> getObjectId(value) }],
-                "_id"     : ['key': '_id', 'process': { value -> getObjectId(value) }],
-                "resource": ['key': 'resource', 'process': { value -> value }],
-                "version" : ['key': 'version', 'process': { value -> value }],
-                "action"  : ['key': 'action', 'process': { value -> value }]
+                "id"             : ['key': '_id', 'process': { value -> getObjectId(value) }],
+                "_id"            : ['key': '_id', 'process': { value -> getObjectId(value) }],
+                "resource"       : ['key': 'resource', 'process': { value -> value }],
+                "version"        : ['key': 'version', 'process': { value -> value }],
+                "changeLogClass" : ['key': 'changeLogClass', 'process': { value -> value }],
+                "changeSetMethod": ['key': 'changeSetMethod', 'process': { value -> value }],
+                "author"         : ['key': 'author', 'process': { value -> value }],
+                "runGroup"       : ['key': 'runGroup', 'process': { value -> value }],
+                "action"         : ['key': 'action', 'process': { value -> value }]
         ]
         filterCriteria.collect { key, value ->
             if (filterKeys.keySet().contains(key)) {

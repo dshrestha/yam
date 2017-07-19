@@ -67,6 +67,50 @@ class MssqlAdapter implements DbmsAdapter {
         return rs.next()
     }
 
+    List list(Map filterCriteria) {
+        List data = []
+        Connection connection = this.connectionResource
+        Map tableColumns = [
+                id             : { ResultSet rs -> rs.getInt(1) },
+                resource       : { ResultSet rs -> rs.getString(2) },
+                version        : { ResultSet rs -> rs.getString(3) },
+                changeLogClass : { ResultSet rs -> rs.getString(4) },
+                changeSetMethod: { ResultSet rs -> rs.getString(5) },
+                author         : { ResultSet rs -> rs.getString(6) },
+                runGroup       : { ResultSet rs -> rs.getLong(7) },
+                date           : { ResultSet rs -> rs.getTimestamp(8) },
+                action         : { ResultSet rs -> rs.getString(9) },
+        ]
+        Map filterKeys = [
+                "id"             : { PreparedStatement stmt, def value -> stmt.setInt(value) },
+                "resource"       : { PreparedStatement stmt, def value -> stmt.setString(value) },
+                "version"        : { PreparedStatement stmt, def value -> stmt.setString(value) },
+                "changeLogClass" : { PreparedStatement stmt, def value -> stmt.setString(value) },
+                "changeSetMethod": { PreparedStatement stmt, def value -> stmt.setString(value) },
+                "author"         : { PreparedStatement stmt, def value -> stmt.setString(value) },
+                "runGroup"       : { PreparedStatement stmt, def value -> stmt.setInt(value) },
+                "action"         : { PreparedStatement stmt, def value -> stmt.setString(value) }
+        ]
+
+        String sql = "SELECT ${tableColumns.keySet().join(", ")} FROM changeSet WHERE ${filterCriteria.keySet().collect { "${it}=?" }.join(" AND ")}"
+        PreparedStatement preparedStatement = connection.prepareStatement(sql)
+
+        filterCriteria.each { key, value ->
+            if (filterKeys.keySet().contains(key)) {
+                filterKeys[key](preparedStatement, value)
+            }
+        }
+        ResultSet rs = preparedStatement.executeQuery()
+        while (rs.next()) {
+            Map row = [:]
+            tableColumns.each { key, closure ->
+                row[key] = closure(rs)
+            }
+            data << row
+        }
+        return data
+    }
+
     Map insertChangeSet(Map changeSet) {
         Connection connection = this.connectionResource
         Calendar cal = Calendar.getInstance()

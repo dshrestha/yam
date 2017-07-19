@@ -56,6 +56,11 @@ trait DbmsAdapter {
     abstract def closeConnection()
 
     /**
+     * This method closes the established connection
+     * */
+    abstract List list(Map filterCriteria)
+
+    /**
      * Method that returns true is change set exists for given resource or else returns false
      *
      * @param resource name

@@ -1,9 +1,9 @@
 package yam
 
-import grails.dev.commands.*
+import grails.dev.commands.GrailsApplicationCommand
 import org.springframework.beans.factory.annotation.Autowired
 
-class UpdateCommand implements GrailsApplicationCommand {
+class RollbackCommand implements GrailsApplicationCommand {
 
     @Autowired
     YamService yamService
@@ -11,7 +11,8 @@ class UpdateCommand implements GrailsApplicationCommand {
     boolean handle() {
         List srcPackages = System.getProperty("srcPackages") ? System.getProperty("srcPackages").split(",") : (System.getProperty("srcPackage") ? [System.getProperty("srcPackage")] : ["yam.changeLogs"])
         Boolean runParallel = String.valueOf(System.getProperty("runParallel")).equalsIgnoreCase("true")
-        yamService.update(srcPackages, runParallel)
+        Long toRunGroup = Long.valueOf(System.getProperty("runGroup"))
+        yamService.rollback(srcPackages, toRunGroup)
         return true
     }
 }

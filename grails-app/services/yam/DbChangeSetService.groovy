@@ -113,4 +113,34 @@ class DbChangeSetService {
             loggerService.logMessage("Skipping ${resourceName} since it has already been run.")
         }
     }
+
+    /**
+     * Runs update script
+     *
+     * @return Void
+     * */
+    def rollback(Method changeSet, DbChangeLog changeLogInstance, Long toRunGroup) {
+        String action = "rollback"
+        String resourceName = getResourceName(changeSet, changeLogInstance, false)
+        ChangeSet annotation = changeSet.getAnnotation(ChangeSet.class)
+
+        DbmsAdapter adapter = getAdapter(annotation)
+        Long runGroup = adapter.nextRunGroup
+        while ((--runGroup) >= toRunGroup) {
+            List changeSetData = adapter.list(['resourceName': resourceName, 'version': annotation.version(), 'action': 'update', 'runGroup': runGroup])
+            if (changeSetData && changeSetData.size() && !changeSetExists(changeSet, changeLogInstance, 'rollback')) {
+                try {
+                    Long start = new Date().getTime()
+                    MigrationScript ret = changeSet.invoke(changeLogInstance, adapter.db())
+                    ret.rollback()
+                    Long end = new Date().getTime()
+                    loggerService.logMessage("Rolled back ${resourceName} successfully. [${end - start} milli seconds]")
+                    insert(changeSet, changeLogInstance, action)
+                } catch (Exception e) {
+                    loggerService.logMessage("Found exception when running ${resourceName}. ${e.message}")
+                    throw e
+                }
+            }
+        }
+    }
 }
