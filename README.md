@@ -14,10 +14,15 @@ grails run-command run -Danalytics_uri="mongodb://testUser:password@localhost1:2
 
 ### 2) rollback
 
-Reverts back a changeset that has already been executed.
+Reverts back a changesets to a specific runGroup(tag equivalent in liquibase)
 Example:
 ```bash
-grails run-command rollback -Dversion="1.0" -DchangeLogClass="migration.script.analytics.AnalyticsDatabaseChangeLog" -DchangeSetMethod="createCollectionIndexes" -Danalytics_uri="mongodb://affiservUser:Affinnova@localhost:27017/analytics?connectTimeoutMS=300000"
+grails run-command rollback -DrunGroup=1  -Danalytics_uri="mongodb://affiservUser:Affinnova@localhost:27017/analytics?connectTimeoutMS=300000"
+```
+
+Reverts back a specific changeset
+```bash
+grails run-command rollback -DresourceName="migration.script.analytics.AnalyticsDatabaseChangeLog.createCollectionIndexes" -Danalytics_uri="mongodb://affiservUser:Affinnova@localhost:27017/analytics?connectTimeoutMS=300000"
 ```
 
 ### command arguments/connection parameters
